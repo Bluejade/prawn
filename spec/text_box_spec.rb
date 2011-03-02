@@ -28,6 +28,18 @@ describe "Text::Box" do
     text.strings[1].should == ".uoy knaht ,enif m'I"
   end
 
+  it "should be able to reverse multi-byte text" do
+    create_pdf
+    @pdf.text_direction(:rtl)
+    @pdf.text_direction = :rtl
+    @pdf.text_direction = :rtl
+    @pdf.font("#{Prawn::BASEDIR}/data/fonts/gkai00mp.ttf", :size => 16) do
+      @pdf.text "写个小"
+    end
+    text = PDF::Inspector::Text.analyze(@pdf.render)
+    text.strings[0].should == "小个写"
+  end
+
   it "option should be able to override document wide text direction" do
     create_pdf
     @pdf.text_direction = :rtl
