@@ -102,8 +102,8 @@ module Prawn
             @kerning = options[:kerning]
             @width = options[:width]
 
-            @scan_pattern = scan_pattern
-            @word_division_scan_pattern = word_division_scan_pattern
+#            @scan_pattern = scan_pattern
+#            @word_division_scan_pattern = word_division_scan_pattern
 
             @accumulated_width = 0
             @line_output = ""
@@ -135,8 +135,8 @@ module Prawn
             return true if fragment == ""
             return false if fragment == "\n"
             previous_segment = nil
-            fragment.scan(@scan_pattern).each do |segment|
-              @arranger.apply_font_settings do
+            @arranger.apply_font_settings do
+              fragment.scan(scan_pattern).each do |segment|
                 segment_width = @document.width_of(segment, :kerning => @kerning)
 
                 if @accumulated_width + segment_width <= @width
@@ -146,8 +146,8 @@ module Prawn
                   end_of_the_line(segment)
                   return false
                 end
+                previous_segment = segment
               end
-              previous_segment = segment
             end
             true
           end
@@ -156,7 +156,7 @@ module Prawn
           # word on the line; otherwise, wrap by character
           #
           def end_of_the_line(segment)
-            if (@line_output + @output) =~ @word_division_scan_pattern
+            if (@line_output + @output) =~ word_division_scan_pattern
               if segment =~ new_regexp("^#{hyphen}") &&
                   @output !~ new_regexp("[#{break_chars}]$")
                 remove_last_output_word
