@@ -132,10 +132,10 @@ module Prawn
         #
         #     def wrap(array)
         #       initialize_wrap([{ :text => 'all your base are belong to us' }])
-        #       line_to_print = @line_wrap.wrap_line(:document => @document,
-        #                                            :kerning => @kerning,
-        #                                            :width => 10000,
-        #                                            :arranger => @arranger)
+        #       @line_wrap.wrap_line(:document => @document,
+        #                            :kerning => @kerning,
+        #                            :width => 10000,
+        #                            :arranger => @arranger)
         #       fragment = @arranger.retrieve_fragment
         #       format_and_draw_fragment(fragment, 0, @line_wrap.width, 0)
         #       []
@@ -221,7 +221,8 @@ module Prawn
         # Returns any text that did not print under the current settings
         #
         def render(flags={})
-          unprinted_text = ''
+          unprinted_text = []
+
           @document.save_font do
             @document.character_spacing(@character_spacing) do
               @document.text_rendering_mode(@mode) do
@@ -313,6 +314,26 @@ module Prawn
           @original_array = formatted_text
         end
 
+        def normalize_encoding
+          formatted_text = original_text
+
+          if @fallback_fonts
+            formatted_text = process_fallback_fonts(formatted_text)
+          end
+
+          formatted_text.each do |hash|
+            if hash[:font]
+              @document.font(hash[:font]) do
+                hash[:text] = @document.font.normalize_encoding(hash[:text])
+              end
+            else
+              hash[:text] = @document.font.normalize_encoding(hash[:text])
+            end
+          end
+
+          formatted_text
+        end
+
         def process_fallback_fonts(formatted_text)
           modified_formatted_text = []
 
@@ -322,25 +343,6 @@ module Prawn
           end
 
           modified_formatted_text
-        end
-
-        def normalize_encoding
-          formatted_text = original_text
-
-          if @fallback_fonts.nil?
-            formatted_text.each do |hash|
-              hash[:text] = @document.font.normalize_encoding(hash[:text])
-            end
-          else
-            formatted_text = process_fallback_fonts(formatted_text)
-            formatted_text.each do |hash|
-              @document.font(hash[:font]) do
-                hash[:text] = @document.font.normalize_encoding(hash[:text])
-              end
-            end
-          end
-
-          formatted_text
         end
 
         def analyze_glyphs_for_fallback_font_support(hash)

@@ -489,6 +489,7 @@ describe "Text::Box printing UTF-8 string with higher bit characters" do
       }.should.not.raise(Prawn::Errors::IncompatibleStringEncoding)
     end
   end
+
   describe "when using an AFM font" do
     it "unprinted text should be in WinAnsi encoding" do
       remaining_text = @text_box.render
@@ -775,7 +776,7 @@ describe "Text::Box wrapping" do
 
     expected = "©" * 25 + "\n" + "©" * 5
     @pdf.font.normalize_encoding!(expected)
-
+    expected = expected.force_encoding("utf-8") if expected.respond_to?(:force_encoding)
     text_box.text.should == expected
   end
 
