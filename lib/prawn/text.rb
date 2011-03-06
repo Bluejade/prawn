@@ -18,6 +18,8 @@ module Prawn
 
     # No-Break Space
     Prawn::Text::NBSP = " "
+    # Zero Width Space (indicate word boundaries without a space)
+    Prawn::Text::ZWSP = [8203].pack("U")
     # Soft Hyphen (invisible, except when causing a line break)
     Prawn::Text::SOFT_HYPHEN = "­"
 

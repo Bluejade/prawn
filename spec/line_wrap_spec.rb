@@ -50,6 +50,26 @@ describe "Core::Text::Formatted::LineWrap#wrap_line" do
     string.should == "hello"
   end
 
+  it "should break on zero-width space" do
+    @pdf.font("#{Prawn::BASEDIR}/data/fonts/DejaVuSans.ttf")
+    array = [{ :text => "hello#{Prawn::Text::ZWSP}world" }]
+    @arranger.format_array = array
+    string = @line_wrap.wrap_line(:arranger => @arranger,
+                                  :width => @one_word_width,
+                                  :document => @pdf)
+    string.should == "hello"
+  end
+
+  it "should not display zero-width space" do
+    @pdf.font("#{Prawn::BASEDIR}/data/fonts/DejaVuSans.ttf")
+    array = [{ :text => "hello#{Prawn::Text::ZWSP}world" }]
+    @arranger.format_array = array
+    string = @line_wrap.wrap_line(:arranger => @arranger,
+                                  :width => 300,
+                                  :document => @pdf)
+    string.should == "helloworld"
+  end
+
   it "should break on tab" do
     array = [{ :text => "hello\tworld" }]
     @arranger.format_array = array
